@@ -1,6 +1,9 @@
 import random
 import hashlib
 import numpy as np
+import time
+import pandas as pd
+import sys
 
 
 class VSS:
@@ -33,13 +36,6 @@ class VSS:
 			Beta.append((x, y))
 		return Beta
 
-m = pow(2, 255) - 19
-secret = 100
-t = 300
-N = 1000
-vss = VSS(m, secret, t, N)
-Beta = vss.gen_shares()
-print(len(Beta))
 
 
 class MoneroAddress():
@@ -53,18 +49,18 @@ class MoneroAddress():
 	def compute_one_time_address(self, Kv, Ks):  # Kv, Ks are 2D
 		r = self.r()
 		G = (self.r(), self.r())
-		print('here 1')
+
 		R = self.alpha_G(r, Kv)
-		print('here 2')
+
 		# it may not fit the defintion
 		# but for evaluting performance, it will work
 		R = (self.hash(R[0]) + self.hash(R[1])) % self.m
-		print('here 3')
+
 		print(R, G)
 		K1 = self.alpha_G(R, G)
-		print('here 4')
+
 		Ko = self.ed25519_add(K1, Ks)
-		print(K1, Ks)
+
 		return Ko
 
 	def alpha_G(self, alpha, G):
@@ -99,7 +95,7 @@ class MoneroAddress():
 	def ed25519_add(self, P, Q):
 		# ed25519
 		a = -1
-		d = -121665/121666
+		d = self.d
 		x1, y1 = P[0], P[1]
 		x2, y2 = Q[0], Q[1]
 
@@ -109,30 +105,31 @@ class MoneroAddress():
 		return (x, y)
 
 
-# Mon = MoneroAddress(m=199)
-# Kv, Ks = (100, 120), (122, 500)
-# print(Mon.compute_one_time_address(Kv, Ks))
-
-
 class Regulation:
 	def __init__(self):
 		self.m = pow(2, 255)-19  # order of the field
-		self.d = -121665 * self.mod_inverse(121666)
-		self.vss = None
-		self.Monero = None
+		self.t = 100
+		self.N = 1000
+		self.vss = VSS(m=self.m, secret=689, t=self.t, N=self.N)
+		self.Monero = MoneroAddress(self.m)
+		self.user_addresses = None
 
-	def initialize(self):
-		self.vss = Vss(m=self.m, secret=689, )
+	def r(self):  # random in the field
+		return random.randint(0, self.m-1)
 
-	def gen_users_address():
+	def gen_users_address(self, num):
+		for i in range(num):
+			Kv = (self.r(), self.r())
+			Ks = (self.r(), self.r())
+			self.user_addresses.append(Kv, Ks)
 		return
 
 	def gen_bundle():
-		return
+		Beta = vss.gen_shares()
+		one_time_addresses = []
+		for i in range(N):
+			user_addr = self.user_addresses[i]
+			one_time_addr = Monero.compute_one_time_address(Kv, Ks)
+			one_time_addresses.append(one_time_addr)
+		return	Beta, one_time_addresses
 
-
-
-# g = Regulation()
-# G = (1, 1)
-# print(g.ed25519_add(G, G))
-# print(list(range(0, 5000)))
