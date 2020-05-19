@@ -61,7 +61,7 @@ class MoneroAddress():
 
 		Ko = self.ed25519_add(K1, Ks)
 
-		return Ko
+		return Ko, self.alpha_G(r, G)
 
 	def alpha_G(self, alpha, G):
 		result = (0, 0)
@@ -111,7 +111,7 @@ class Regulation:
 		self.t = 100
 		self.N = 1000
 		self.vss = VSS(m=self.m, secret=689, t=self.t, N=self.N)
-		self.Monero = MoneroAddress(self.m)
+		self.moneoro = MoneroAddress(self.m)
 		self.user_addresses = None
 
 	def r(self):  # random in the field
@@ -129,7 +129,7 @@ class Regulation:
 		one_time_addresses = []
 		for i in range(N):
 			user_addr = self.user_addresses[i]
-			one_time_addr = Monero.compute_one_time_address(Kv, Ks)
-			one_time_addresses.append(one_time_addr)
+			one_time_addr, rG = moneoro.compute_one_time_address(Kv, Ks)
+			one_time_addresses.append((one_time_addr, rG))
 		return	Beta, one_time_addresses
 
