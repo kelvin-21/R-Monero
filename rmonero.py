@@ -1,9 +1,10 @@
 import random
 import hashlib
+import pandas as pd
 import numpy as np
 import time
-import pandas as pd
 import sys
+import os
 
 
 class VSS:
@@ -110,7 +111,7 @@ class Regulation:
 		self.m = pow(2, 255)-19  # order of the field
 		self.t = 100
 		self.N = 1000
-		self.vss = VSS(m=self.m, secret=689, t=self.t, N=self.N)
+		self.vss = VSS(m=self.m, secret=self.r(), t=self.t, N=self.N)
 		self.moneoro = MoneroAddress(self.m)
 		self.user_addresses = None
 
@@ -133,3 +134,24 @@ class Regulation:
 			one_time_addresses.append((one_time_addr, rG))
 		return	Beta, one_time_addresses
 
+
+class Experiment():
+	def _init__(self, N_list, t_factors, num_trial):
+		self.df = None
+		self.N_list = N_list
+		self.t_factors = t_factors
+		self.num_trial = num_trial
+		self.regulation = Regulation()
+
+	def initialize(self):
+		if os.path.exists('data.csv'):
+			self.df = pd.read_csv('data.csv')
+		else:
+			self.df = pd.DataFrame(columns=['t', 'N', 'time_used', 'size'])
+
+	def run_experiment(self):
+		for N in self.N_list:
+			for t_factor in self.t_factors:
+				for i in range(self.num_trial):
+
+					start = time.time()
